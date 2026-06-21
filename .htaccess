@@ -1,0 +1,14 @@
+
+# ~~~ CloudLinux Node.js Selector ~~~
+PassengerEnabled on
+PassengerAppType node
+PassengerStartupFile server.js
+# ~~~ End CloudLinux Node.js Selector ~~~
+
+# Impede a listagem de diretórios (evita o erro 403 caso o index falhe)
+Options -Indexes
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ server.js/$1 [L]

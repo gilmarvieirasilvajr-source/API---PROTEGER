@@ -1,0 +1,96 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Auxiliares de Autenticação
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+    
+    function isSupervisor() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_supervisor/$(request.auth.uid));
+    }
+    
+    function isManagement() {
+      return isAdmin() || isSupervisor();
+    }
+
+    // Regras Específicas para cada Coleção
+
+    match /funcionarios/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /contratos/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /contasReceber/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /contasPagar/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /postos/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /escalasDiarias/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /escalasStatus/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /postoObservacoes/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /despesas/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /clientesEletronicos/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /configuracoes/{id} {
+      allow read: if isSignedIn();
+      allow write: if isManagement();
+    }
+
+    match /roles_supervisor/{uid} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+    }
+
+    match /roles_admin/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /logs/{id} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+    }
+  }
+}
